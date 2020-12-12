@@ -1,34 +1,49 @@
 # -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  8 23:37:15 2020
+
+@author: JAKIE
+"""
+
 # ejemplo clases: https://www.w3schools.com/python/python_classes.asp
 #https://python-para-impacientes.blogspot.com/2015/06/programacion-orientada-objetos-y-iii.html
 
 class Cuestionario:
-    def __init__(self, seccion, tarea, pregunta, tEstablecido, tEmpleado, rptaEsperada, rptaRealizada):
-        self.seccion = seccion
-        self.tarea = tarea
-        self.pregunta = pregunta
+    
+    def __init__(self, id_pregunta, id_seccion, nro_tarea, nro_pregunta, 
+                 tEstablecido, tEmpleado, rptaEsperada, rptaRealizada):
+        self.id_pregunta=id_pregunta
+        self.id_seccion = id_seccion
+        self.nro_tarea = nro_tarea
+        self.nro_pregunta = nro_pregunta
         self.tEstablecido = tEstablecido
         self.tEmpleado = tEmpleado
         self.rptaEsperada = rptaEsperada
         self.rptaRealizada = rptaRealizada
 
-    def getSeccion(self):
-        return self.seccion
+    def getIdPregunta(self):
+        return self.getIdPregunta
+    
+    def setIdPregunta(self, id_pregunta):
+        self.id_pregunta = id_pregunta
 
-    def setSeccion(self, seccion):
-        self.seccion = seccion
+    def getIdSeccion(self):
+        return self.id_seccion
+
+    def setSeccion(self, id_seccion):
+        self.id_seccion = id_seccion
         
-    def getTarea(self):
-        return self.tarea
+    def getNroTarea(self):
+        return self.nro_tarea
 
-    def setTarea(self, tarea):
-        self.tarea = tarea
+    def setNroTarea(self, nro_tarea):
+        self.nro_tarea = nro_tarea
         
-    def getPregunta(self):
-        return self.pregunta
+    def getNroPregunta(self):
+        return self.nro_pregunta
 
-    def setPregunta(self, pregunta):
-        self.pregunta = pregunta
+    def setNroPregunta(self, nro_pregunta):
+        self.nro_pregunta = nro_pregunta
         
     def getTEstablecido(self):
         return self.tEstablecido
@@ -54,3 +69,18 @@ class Cuestionario:
     def setRptaRealizada(self, rptaRealizada):
         self.rptaRealizada = rptaRealizada
         
+q1 = Cuestionario(1, 'Atencion Sostenida', 'T.1.1', '1', '60 seg', '60 seg', 57, 54)
+q2 = Cuestionario(2, 'Atencion Dividida', 'T.2.1', '1', '60 seg', '60 seg', 4, 3)
+q3 = Cuestionario(3, 'Percepcion de riesgos', 'T.4.1', '1', '60 seg', '60 seg', 4, 3)
+
+question_list = []
+question_list.append(q1)
+question_list.append(q2)
+question_list.append(q3)
+
+#for i in question_list:
+#   print(i.getIdSeccion())
+
+
+
+
