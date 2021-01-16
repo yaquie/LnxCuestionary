@@ -15,7 +15,7 @@ app= Flask(__name__)
 db_conection = mysql.connector.connect( host='localhost', 
                                          user='root', 
                                          passwd='admin', 
-                                         db='lnxtechnologydb_2')
+                                         db='lnxtechnologydb')
 
 # https://www.nintyzeros.com/2019/11/flask-mysql-crud-restful-api.html
 
@@ -23,7 +23,7 @@ db_conection = mysql.connector.connect( host='localhost',
 def list_questions():
     try:
         cur = db_conection.cursor()
-        cur.execute( "select id_pregunta, id_seccion, nro_tarea,  nro_pregunta, des_tarea_pregunta,     id_pregunta_padre, rpta_esperada, tiem_esperado, total_puntos from tbl03_pregunta" )
+        cur.execute( "select p.id_pregunta, p.id_seccion, p.nro_tarea,dp.nro_pregunta,  dp.rpta_esperada, dp.rpta_realizada, dp.tpo_esperado, dp.tpo_empleado from tbl02_detalle_pregunta dp inner join tbl01_pregunta p on dp.id_pregunta =p.id_pregunta and p.estado='1' and dp.estado='1'" )
         data = cur.fetchall()
         
         lista =[]
@@ -104,13 +104,7 @@ def get_question(id_pregunta):
 def puntaje_atencion_sostenida(id_seccion):
     try:
         cur = db_conection.cursor()
-        cur.execute("""
-                    select p.id_pregunta, p.id_seccion, p.nro_pregunta, p.rpta_esperada, 
-                    p.tiem_esperado, dp.rpta_realizada, dp.tiem_empleado 
-                    from tbl03_pregunta p inner join tbl04_detalle_pregunta dp 
-                    on p.id_pregunta = dp.id_pregunta
-                    and p.id_seccion =%s
-                    """ % (id_seccion))
+        cur.execute("select dp.id_detalle_pregunta, p.id_pregunta, p.id_seccion, p.nro_tarea,dp.nro_pregunta,  dp.rpta_esperada, dp.rpta_realizada, dp.tpo_esperado, dp.tpo_empleado from tbl02_detalle_pregunta dp inner join tbl01_pregunta p on dp.id_pregunta =p.id_pregunta and p.estado='1' and dp.estado='1' and p.id_seccion=%s" % (id_seccion))
         data = cur.fetchall()
         
         var_resultado = 0
@@ -118,8 +112,8 @@ def puntaje_atencion_sostenida(id_seccion):
         for pregunta in data:
             #id_pregunta = pregunta[0]
             #rpta_esperada = pregunta[5]
-            var_seccion = pregunta[1]
-            rpta_realizada = pregunta[5]
+            var_seccion = pregunta[2]
+            rpta_realizada = pregunta[6]
             var_resultado = var_resultado + int(rpta_realizada)
                 
             
@@ -147,57 +141,30 @@ def puntaje_atencion_sostenida(id_seccion):
         print(e)
     finally: 
         cur.close()
-      
         
-# retornar dimension por usuario y seccion      
-@app.route('/atencion_dividida/<int:id_seccion>')
-def puntaje_atencion_dividida(id_seccion):
+@app.route('/atencion_dividida')
+def puntaje_atencion_dividida():
     try:
         cur = db_conection.cursor()
-        cur.execute("""
-                    select p.id_pregunta, p.id_seccion, p.nro_pregunta, p.rpta_esperada, 
-                    p.tiem_esperado, dp.rpta_realizada, dp.tiem_empleado 
-                    from tbl03_pregunta p inner join tbl04_detalle_pregunta dp 
-                    on p.id_pregunta = dp.id_pregunta
-                    and p.id_seccion =%s """ % (id_seccion))
+        cur.execute("select dp.id_detalle_pregunta, p.id_pregunta, p.id_seccion, p.nro_tarea,dp.nro_pregunta,  dp.rpta_esperada, dp.rpta_realizada, dp.tpo_esperado, dp.tpo_empleado from tbl02_detalle_pregunta dp inner join tbl01_pregunta p on dp.id_pregunta =p.id_pregunta and p.estado='1' and dp.estado='1' and p.id_seccion=3" )
         data = cur.fetchall()
         
         var_resultado = 0
         var_dimension_cognitiva =""
-        puntaje_obtenido=0
-        nro_acierto = 0
-        var_seccion = "atencion_dividida"
-        
-        if data[0][5] =='G':
-            nro_acierto =1
-            puntaje_obtenido += nro_acierto
-        
-        if data[1][5] =='4':
-            nro_acierto =1
-            puntaje_obtenido += nro_acierto
-        
-        if data[2][5] =='K':
-            nro_acierto =1
-            puntaje_obtenido += nro_acierto
-        
-        if data[3][5] =='7':
-            nro_acierto =1
-            puntaje_obtenido += nro_acierto
-        
-        
-        # evaluacion de puntaje para asignar dimension
-        if puntaje_obtenido >= 0 and puntaje_obtenido <= 2:
-            var_dimension_cognitiva='Bajo'
-        elif puntaje_obtenido == 3 :
-            var_dimension_cognitiva='Promedio'
-        else:
-            var_dimension_cognitiva='Alto'
-           
-       
+        lista =[]
+        #for pregunta in data:
+            #id_pregunta = pregunta[0]
+            #var_seccion = pregunta[2]
+            #rpta_esperada = pregunta[5]
+        #   rpta_realizada = pregunta[6]
+            
+        #   if rpta_realizada =='G':
+                
+            
+        #   lista.append(pregunta)
+
         response = jsonify({
-                            "puntaje": puntaje_obtenido,
-                            "dimension": var_dimension_cognitiva,
-                            "seccion" : var_seccion
+                            "pregunta": lista
                             })
         response.status_code=200
         return response
@@ -243,7 +210,8 @@ def delete_contact():
 
 @app.route('/saludo')
 def saludo():
-    response = jsonify({'resultado': 'OK'})
+    obj = Saludo('Jakie', 25)
+    response = jsonify({'resultado': obj.getEdad()})
     return response
 
 
