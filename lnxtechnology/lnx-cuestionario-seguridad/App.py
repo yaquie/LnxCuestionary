@@ -99,6 +99,7 @@ def get_question(id_pregunta):
         print(e)
     finally:
         cur.close()
+        
  
 @app.route('/atencion_sostenida/<int:id_seccion>')
 def puntaje_atencion_sostenida(id_seccion):
@@ -205,7 +206,96 @@ def puntaje_atencion_dividida(id_seccion):
         print(e)
     finally: 
         cur.close()
+  
     
+#pendiente de implementar  
+@app.route('/comprension_instrucciones/<int:id_seccion>')
+def puntaje_atencion_sostenida(id_seccion):
+    try:
+        cur = db_conection.cursor()
+        cur.execute("""
+                    select p.id_pregunta, p.id_seccion, p.nro_pregunta, p.rpta_esperada, 
+                    p.tiem_esperado, dp.rpta_realizada, dp.tiem_empleado 
+                    from tbl03_pregunta p inner join tbl04_detalle_pregunta dp 
+                    on p.id_pregunta = dp.id_pregunta
+                    and p.id_seccion =%s
+                    """ % (id_seccion))
+        data = cur.fetchall()
+        
+        response = jsonify({
+                            "puntaje":data
+                            })
+        response.status_code=200
+        return response
+    except Exception as e:
+        print(e)
+    finally: 
+        cur.close()  
+  
+@app.route('/comprension_textos/<int:id_seccion>')
+def puntaje_conprension_textos(id_seccion):
+    try:
+        cur = db_conection.cursor()
+        cur.execute("""
+                    select p.id_pregunta, p.id_seccion, p.nro_pregunta, p.rpta_esperada, 
+                    p.tiem_esperado, dp.rpta_realizada, dp.tiem_empleado 
+                    from tbl03_pregunta p inner join tbl04_detalle_pregunta dp 
+                    on p.id_pregunta = dp.id_pregunta
+                    and p.id_seccion =%s
+                    """ % (id_seccion))
+        data = cur.fetchall()
+        
+        #var_resultado = 0
+        var_dimension_cognitiva =""
+        var_seccion = "Comprension de Textos"
+        puntaje_obtenido=0
+        nro_acierto = 0
+        
+        
+        #validacion de respuestas
+        #pregunta1
+        puntaje_obtenido +=1 if data[0][5]=='b' else 0
+                
+        #pregunta2
+        puntaje_obtenido +=1 if data[1][5]=='d' else 0
+                   
+        #pregunta3
+        puntaje_obtenido +=1 if data[2][5]=='c' else 0
+                   
+        #pregunta4
+        puntaje_obtenido +=1 if data[3][5]=='4,1,3,2' else 0
+                  
+        #pregunta5
+        puntaje_obtenido +=1 if data[4][5]=='b' else 0
+                   
+        #pregunta6
+        puntaje_obtenido +=1 if data[5][5]=='c' else 0
+            
+        #pregunta7
+        puntaje_obtenido +=1 if data[6][5]=='d' else 0
+            
+        
+        # evaluacion de puntaje para asignar dimension
+        if puntaje_obtenido >= 0 and puntaje_obtenido <= 3:
+            var_dimension_cognitiva='Bajo'
+        elif puntaje_obtenido == 4 or puntaje_obtenido == 5:
+            var_dimension_cognitiva='Promedio'
+        else:
+            #puntaje_obtenido == 6 or 7
+            var_dimension_cognitiva='Alto'
+        
+        response = jsonify({
+                            "puntaje":puntaje_obtenido,
+                            "dimension": var_dimension_cognitiva,
+                            "seccion" : var_seccion
+                            })
+        response.status_code=200
+        return response
+    except Exception as e:
+        print(e)
+    finally: 
+        cur.close()  
+  
 
 @app.route('/add_question', methods = ['POST'])
 def add_question():
