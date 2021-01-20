@@ -253,26 +253,26 @@ def puntaje_conprension_textos(id_seccion):
         
         
         #validacion de respuestas
-        #pregunta1
-        puntaje_obtenido +=1 if data[0][5]=='b' else 0
+        #pregunta1   -- ('b').lower()
+        puntaje_obtenido +=1 if data[0][5]==('b').upper() else 0
                 
         #pregunta2
-        puntaje_obtenido +=1 if data[1][5]=='d' else 0
+        puntaje_obtenido +=1 if data[1][5]==('d').upper() else 0
                    
         #pregunta3
-        puntaje_obtenido +=1 if data[2][5]=='c' else 0
+        puntaje_obtenido +=1 if data[2][5]==('c').upper() else 0
                    
         #pregunta4
         puntaje_obtenido +=1 if data[3][5]=='4,1,3,2' else 0
                   
         #pregunta5
-        puntaje_obtenido +=1 if data[4][5]=='b' else 0
+        puntaje_obtenido +=1 if data[4][5]==('b').upper() else 0
                    
         #pregunta6
-        puntaje_obtenido +=1 if data[5][5]=='c' else 0
+        puntaje_obtenido +=1 if data[5][5]==('c').upper() else 0
             
         #pregunta7
-        puntaje_obtenido +=1 if data[6][5]=='d' else 0
+        puntaje_obtenido +=1 if data[6][5]==('d').upper() else 0
             
         
         # evaluacion de puntaje para asignar dimension
@@ -295,7 +295,64 @@ def puntaje_conprension_textos(id_seccion):
         print(e)
     finally: 
         cur.close()  
-  
+        
+        
+@app.route('/percepcion_riesgos/<int:id_seccion>')
+def percepcion_riesgos(id_seccion):
+    try:
+        cur = db_conection.cursor()
+        cur.execute("""
+                    select p.id_pregunta, p.id_seccion, p.nro_pregunta, p.rpta_esperada, 
+                    p.tiem_esperado, dp.rpta_realizada, dp.tiem_empleado 
+                    from tbl03_pregunta p inner join tbl04_detalle_pregunta dp 
+                    on p.id_pregunta = dp.id_pregunta
+                    and p.id_seccion =%s
+                    """ % (id_seccion))
+        data = cur.fetchall()
+        
+        #var_resultado = 0
+        var_dimension_cognitiva =""
+        var_seccion = "Percepcion de Riesgos"
+        puntaje_obtenido=0
+        resultado = 0
+        
+        #validacion de respuestas
+        #pregunta1   
+        puntaje_obtenido +=1 if data[0][5] == ('0,1') else 0    
+        #pregunta2
+        puntaje_obtenido +=1 if data[1][5]==('1,0')else 0
+        #pregunta3
+        puntaje_obtenido +=1 if data[2][5]==('0,1') else 0
+        #pregunta4
+        puntaje_obtenido +=1 if data[3][5]==('1,0') else 0
+        #pregunta5
+        puntaje_obtenido +=1 if data[4][5]==('1,0') else 0
+        #pregunta6
+        puntaje_obtenido +=1 if data[5][5]==('1,0') else 0
+        #pregunta7
+        puntaje_obtenido +=1 if data[6][5]==('1,0') else 0
+        
+        # evaluacion de puntaje para asignar dimension
+        if puntaje_obtenido >= 0 and puntaje_obtenido <= 5:
+            var_dimension_cognitiva='Bajo'
+        elif puntaje_obtenido == 6:
+            var_dimension_cognitiva='Promedio'
+        else:
+            #puntaje_obtenido == 7
+            var_dimension_cognitiva='Alto'
+        
+        
+        response = jsonify({
+                            "puntaje":puntaje_obtenido,
+                            "dimension": var_dimension_cognitiva,
+                            "seccion": var_seccion
+                            })
+        response.status_code=200
+        return response
+    except Exception as e:
+        print(e)
+    finally: 
+        cur.close()  
 
 @app.route('/add_question', methods = ['POST'])
 def add_question():
