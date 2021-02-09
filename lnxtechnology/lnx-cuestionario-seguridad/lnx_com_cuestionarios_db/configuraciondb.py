@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from Main_App import app
+#from Main_App import app 
 import mysql.connector
+from flask import Blueprint
 
 
-mysql = mysql.connector
+#db_conection = Blueprint('configuracionBD', __name__)
 
-app.config['MYSQL_HOST']= 'localhost'
-app.config['MYSQL_USER']= 'root'
-app.config['MYSQL_PASSWORD']= 'admin'
-app.config['MYSQL_DB']= 'lnxtechnologydb'
-
-mysql.Connect(app)
-
-
-
+try:
+    db_conection = mysql.connector.connect( host='localhost', 
+                                         user='root', 
+                                         passwd='admin', 
+                                         db='lnxtechnologydb_2')
+    print('conexion exitosa')
+except(mysql.connector.errorcode, mysql.connector.InternalError) as e:
+    print('Error en la conexion de bd', e)
+    
 
