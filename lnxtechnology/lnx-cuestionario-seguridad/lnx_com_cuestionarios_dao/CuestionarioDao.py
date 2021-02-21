@@ -31,17 +31,12 @@ def getQuestionByUser(id_seccion, id_usuario):
     finally: 
         cur.close()
 
-
+# link rest api crud example
+#https://medium.com/@hamdi.fersi/python-rest-api-crud-example-using-flask-and-mysql-8211c49c27d4
 #@api.route('/add_question', methods = ['POST'])
-def add_question():
+def add_question(_id_pregunta, _id_usuario, _rpta_realizada, _tiemp_empleado, _estado ):
     try:
-        _json = request.json
-        _id_pregunta = _json['id_pregunta']
-        _id_usuario = _json['id_usuario']
-        _rpta_realizada = _json['rpta_realizada']
-        _tiemp_empleado = _json['tiem_empleado']
-        _estado = _json['estado']
-                 
+                        
         sql_query = ("""
                      INSERT INTO tbl04_detalle_pregunta
                      (id_pregunta, id_usuario, rpta_realizada, tiem_empleado, estado, fec_crea)
@@ -53,11 +48,20 @@ def add_question():
         cur.execute(sql_query, param_input)
         
         db_conection.commit()
-        print(cur.rowcount, "Registro exitoso")
-        #response = jsonify('Registro exitoso')
-        #response.status_code = 200
-        #return response
-    
+        
+        data = cur.lastrowid
+        
+        mensaje = ''
+        codigo  = ''
+        if data is None :
+            mensaje = 'Error en el registro'
+            codigo = '01'
+            return  mensaje, codigo
+        else:
+            mensaje = 'Registro exitoso'
+            codigo = '00'
+            return  mensaje, codigo
+
     except Exception as e:
         print(e)
     finally:

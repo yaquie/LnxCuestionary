@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
 #from lnx_com_cuestionarios_model.Cuestionario import Cuestionario
 #from lnx_com_cuestionarios_model.Response import Response
 from lnx_com_cuestionarios_db.configuraciondb import db_conection
 import lnx_com_cuestionarios_dao.CuestionarioDao as dao 
 
-#app= Flask(__name__)
 api = Blueprint('CuestionarioController', __name__)
 
 # https://www.nintyzeros.com/2019/11/flask-mysql-crud-restful-api.html
 
 
-#test
-#http://localhost:3000/getQuestionByUser2/1/1
+'#test'
+'#http://localhost:3000/getQuestionByUser2/1/1'
 @api.route('/getQuestionByUser/<id_seccion>/<id_usuario>')
 def getQuestionByUserController(id_seccion, id_usuario):
      try:
-         questions= dao.getQuestionByUser(id_seccion, id_usuario)
+         questions = dao.getQuestionByUser(id_seccion, id_usuario)
          response = jsonify({"lista": questions})   
          return response
      except Exception as e:
@@ -31,7 +29,7 @@ def puntaje_atencion_sostenida(id_seccion, id_usuario):
         questions = dao.getQuestionByUser(id_seccion, id_usuario)
         
         var_resultado = 0
-        var_seccion ='Atencion Sostenida'
+        var_seccion = 'Atencion Sostenida'
         for pregunta in questions:
             #id_pregunta = pregunta[0]
             #rpta_esperada = pregunta[5]
@@ -40,18 +38,18 @@ def puntaje_atencion_sostenida(id_seccion, id_usuario):
             var_resultado = var_resultado + int(rpta_realizada)
                 
             
-        var_dimension_cognitiva=""
+        var_dimension_cognitiva = ""
         
-        if var_resultado >= 0 and var_resultado  <=58:
-            var_dimension_cognitiva='Bajo'
-        elif var_resultado >= 59 and var_resultado <=67:
-            var_dimension_cognitiva='Promedio Bajo'
+        if var_resultado >= 0 and var_resultado  <= 58:
+            var_dimension_cognitiva = 'Bajo'
+        elif var_resultado >= 59 and var_resultado <= 67:
+            var_dimension_cognitiva = 'Promedio Bajo'
         elif var_resultado >= 68 and var_resultado <=72:    
-            var_dimension_cognitiva='Promedio'
+            var_dimension_cognitiva =' Promedio'
         elif var_resultado >= 73 and var_resultado <=77:    
-            var_dimension_cognitiva='Promedio Alto'
+            var_dimension_cognitiva =' Promedio Alto'
         else:
-            var_dimension_cognitiva='Alto'
+            var_dimension_cognitiva = 'Alto'
         
         response = jsonify({
                             "puntaje":var_resultado,
@@ -280,6 +278,7 @@ def causas_lesion(id_seccion, id_usuario):
 @api.route('/add_question', methods = ['POST'])
 def add_question():
     try:
+
         _json = request.json
         _id_pregunta = _json['id_pregunta']
         _id_usuario = _json['id_usuario']
@@ -287,28 +286,16 @@ def add_question():
         _tiemp_empleado = _json['tiem_empleado']
         _estado = _json['estado']
                  
-        sql_query = ("""
-                     INSERT INTO tbl04_detalle_pregunta
-                     (id_pregunta, id_usuario, rpta_realizada, tiem_empleado, estado, fec_crea)
-                     VALUES (%s, %s, %s, %s, %s, now())
-                     """)
-        param_input = (_id_pregunta, _id_usuario, _rpta_realizada, _tiemp_empleado, _estado)
-        
-        cur = db_conection.cursor()
-        cur.execute(sql_query, param_input)
-        
-        db_conection.commit()
-        print(cur.rowcount, "Registro exitoso")
-        #response = jsonify('Registro exitoso')
-        #response.status_code = 200
-        #return response
+        mensaje_rpta, codigo_rpta = dao.add_question(_id_pregunta, _id_usuario, _rpta_realizada, _tiemp_empleado, _estado)
+       
+        response = jsonify({"mensaje ": mensaje_rpta,
+                            "codigo" : codigo_rpta})
+        response.status_code = 200
     
     except Exception as e:
         print(e)
     finally:
-        cur.close()
-        db_conection.close()
-        
+        return response
 
 
 @api.route('/update_question')
